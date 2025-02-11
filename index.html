@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PURE Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-tsx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: #1a202c;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .titlebar {
+            height: 32px;
+            background: rgba(26, 32, 44, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            -webkit-app-region: drag;
+        }
+
+        .titlebar-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .titlebar-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            -webkit-app-region: no-drag;
+        }
+
+        .titlebar-button {
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: transparent;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .titlebar-button:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .content {
+            flex: 1;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: calc(100vh - 32px);
+            overflow: hidden;
+        }
+
+        .menu-bar {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .left-controls, .right-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tabs-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px;
+            border-radius: 8px 8px 0 0;
+            gap: 4px;
+        }
+
+        .tab {
+            padding: 8px 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 13px;
+            position: relative;
+            min-width: 100px;
+        }
+
+        .tab.active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-close {
+            position: absolute;
+            right: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .tab:hover .tab-close {
+            opacity: 1;
+        }
+
+        .editors-container {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0 0 8px 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .editor-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+        }
+
+        .editor-wrapper.active {
+            display: block;
+        }
+
+        .editor-wrapper pre {
+            margin: 0;
+            min-height: 100%;
+            background: transparent !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .editor-wrapper code {
+            font-family: 'JetBrains Mono', monospace !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+        }
+
+        .editor {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 15px;
+            border: none;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        .editor:focus {
+            outline: none;
+        }
+
+        #theme-toggle {
+            padding: 6px;
+            margin-right: 8px;
+        }
+
+        #theme-toggle svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Light theme styles */
+        body.light {
+            background: #f0f4f8;
+            color: #2d3748;
+        }
+
+        body.light .titlebar {
+            background: rgba(255, 255, 255, 0.95);
+            color: #2d3748;
+        }
+
+        body.light .titlebar-button {
+            color: #2d3748;
+        }
+
+        body.light .menu-bar {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body.light button {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #2d3748;
+        }
+
+        body.light button:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light .tabs-container {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body.light .tab {
+            background: rgba(0, 0, 0, 0.05);
+            color: #2d3748;
+        }
+
+        body.light .tab.active {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light .editors-container {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body.light .editor {
+            color: #2d3748;
+        }
+
+        /* Dark theme styles */
+        body.dark {
+            background: #1a202c;
+            color: #fff;
+        }
+
+        body.dark .titlebar {
+            background: rgba(26, 32, 44, 0.95);
+        }
+
+        body.dark .menu-bar {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        body.dark button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        body.dark button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Line numbers styling */
+        .line-numbers .line-numbers-rows {
+            position: absolute;
+            pointer-events: none;
+            top: 15px;
+            left: 0;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 0 8px;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .editor-wrapper.code-mode .editor {
+            padding-left: 60px; /* Make space for line numbers */
+        }
+
+        /* Scrollbar styling */
+        .editor-wrapper::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        .editor-wrapper::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .editor-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+        }
+
+        .editor-wrapper::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .editor-wrapper.code-mode pre {
+            white-space: pre !important;
+            word-wrap: normal !important;
+            tab-size: 4;
+        }
+
+        .editor-wrapper.code-mode .editor {
+            tab-size: 4;
+            -moz-tab-size: 4;
+        }
+
+        /* Fix line height alignment */
+        .line-numbers .line-numbers-rows > span:before {
+            padding-right: 0.8em;
+        }
+
+        /* Add specific HTML/XML styling */
+        .token.tag,
+        .token.attr-name,
+        .token.namespace,
+        .token.deleted {
+            color: #e2777a;
+        }
+
+        .token.attr-value,
+        .token.string,
+        .token.char,
+        .token.builtin,
+        .token.inserted {
+            color: #7ec699;
+        }
+
+        .token.punctuation {
+            color: #88c6be;
+        }
+
+        .token.doctype,
+        .token.entity {
+            color: #e2777a;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="titlebar">
+        <div class="titlebar-text">PURE Studio</div>
+        <div class="titlebar-controls">
+            <button class="titlebar-button" onclick="minimizeWindow()">─</button>
+            <button class="titlebar-button" onclick="maximizeWindow()">□</button>
+            <button class="titlebar-button" onclick="closeWindow()">×</button>
+        </div>
+    </div>
+    <div class="content">
+        <div class="menu-bar">
+            <div class="left-controls">
+                <button onclick="newFile()" title="New File (Ctrl+N)">New</button>
+                <button onclick="openFile()" title="Open File (Ctrl+O)">Open</button>
+                <button onclick="saveFile()" title="Save File (Ctrl+S)">Save</button>
+                <button onclick="saveFileAs()" title="Save As (Ctrl+Shift+S)">Save As</button>
+            </div>
+            <div class="right-controls">
+                <button id="theme-toggle" onclick="toggleTheme()">🌙</button>
+            </div>
+        </div>
+        <div class="tabs-container">
+            <button id="new-tab-button" onclick="newTab()">+</button>
+        </div>
+        <div class="editors-container"></div>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html> 
